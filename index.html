@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NyxUI | Prodex Studio (Stable)</title>
+    <title>NyxUI | Hybrid Core</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -21,12 +21,8 @@
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: {
-                        bg: '#030303', surface: '#0A0A0A', border: '#1F1F1F', accent: '#3b82f6'
-                    },
-                    animation: {
-                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    }
+                    colors: { bg: '#030303', surface: '#0A0A0A', border: '#1F1F1F', accent: '#3b82f6' },
+                    animation: { 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
                 }
             }
         }
@@ -34,57 +30,21 @@
 
     <style>
         body { background-color: #030303; color: #e4e4e7; overflow-x: hidden; }
-        
-        /* NOISE & GRID */
-        .bg-noise {
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-            pointer-events: none; position: fixed; inset: 0; z-index: -1;
-        }
-        .bg-grid {
-            background-size: 50px 50px;
-            background-image: linear-gradient(to right, #111 1px, transparent 1px),
-                              linear-gradient(to bottom, #111 1px, transparent 1px);
-            position: fixed; inset: 0; z-index: -2;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-        }
-
-        /* PRODEX CARD */
-        .prodex-card {
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid #1F1F1F;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .prodex-card:hover { border-color: #333; transform: translateY(-2px); }
-
-        /* PREVIEW AREA */
-        .preview-checkered {
-            background-color: #050505;
-            background-image: linear-gradient(45deg, #0A0A0A 25%, transparent 25%), 
-                              linear-gradient(-45deg, #0A0A0A 25%, transparent 25%), 
-                              linear-gradient(45deg, transparent 75%, #0A0A0A 75%), 
-                              linear-gradient(-45deg, transparent 75%, #0A0A0A 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-        }
-
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #444; }
-
-        /* NAV ITEM */
-        .nav-item {
-            display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-            font-size: 13px; color: #71717a; border-radius: 6px; transition: all 0.2s;
-            border: 1px solid transparent;
-        }
+        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); pointer-events: none; position: fixed; inset: 0; z-index: -1; }
+        .bg-grid { background-size: 50px 50px; background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px); position: fixed; inset: 0; z-index: -2; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+        .prodex-card { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); border: 1px solid #1F1F1F; border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .prodex-card:hover { border-color: #333; transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+        .preview-checkered { background-color: #050505; background-image: linear-gradient(45deg, #0A0A0A 25%, transparent 25%), linear-gradient(-45deg, #0A0A0A 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0A0A0A 75%), linear-gradient(-45deg, transparent 75%, #0A0A0A 75%); background-size: 20px 20px; }
+        ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 13px; color: #71717a; border-radius: 6px; transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
         .nav-item:hover { color: #fff; background: #111; border-color: #1A1A1A; }
         .nav-item.active { color: #fff; background: #111; border-color: #27272a; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        
+        /* Terminal Log */
+        #console-log { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #00ff9d; }
+        .log-entry { margin-bottom: 2px; opacity: 0.7; }
+        .log-entry:last-child { opacity: 1; font-weight: bold; }
+        .log-error { color: #ff4d4d; }
     </style>
 </head>
 <body class="h-screen flex text-sm selection:bg-blue-500/20 selection:text-blue-200">
@@ -97,35 +57,32 @@
             <div class="w-8 h-8 bg-gradient-to-br from-white to-zinc-400 rounded-lg flex items-center justify-center shadow-lg shadow-white/5">
                 <div class="w-4 h-4 bg-black rounded-md"></div>
             </div>
-            <div><h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1><p class="text-[10px] text-zinc-600 font-mono">v3.1 STABLE</p></div>
+            <div><h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1><p class="text-[10px] text-zinc-600 font-mono">HYBRID CORE</p></div>
         </div>
 
         <div class="p-4">
-            <div class="relative group">
-                <i data-lucide="command" class="absolute left-3 top-2.5 w-3.5 h-3.5 text-zinc-600 group-focus-within:text-white transition"></i>
-                <input type="text" id="global-search" placeholder="Filter..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 pl-9 pr-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition placeholder:text-zinc-700 font-mono">
-            </div>
+            <input type="text" id="global-search" placeholder="Search components..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 px-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition font-mono">
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 space-y-6">
             <div>
-                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">Collection</h4>
-                <button onclick="filterCategory('all')" class="nav-item active w-full"><i data-lucide="layers" class="w-4 h-4"></i> All Components</button>
-                <button onclick="filterCategory('button')" class="nav-item w-full"><i data-lucide="mouse-pointer-2" class="w-4 h-4"></i> Buttons</button>
-                <button onclick="filterCategory('input')" class="nav-item w-full"><i data-lucide="text-cursor-input" class="w-4 h-4"></i> Inputs</button>
-                <button onclick="filterCategory('card')" class="nav-item w-full"><i data-lucide="layout-template" class="w-4 h-4"></i> Cards</button>
+                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">Library</h4>
+                <div onclick="filterCategory('all')" class="nav-item active"><i data-lucide="layers" class="w-4 h-4"></i> All Components</div>
+                <div onclick="filterCategory('button')" class="nav-item"><i data-lucide="mouse-pointer-2" class="w-4 h-4"></i> Buttons</div>
+                <div onclick="filterCategory('input')" class="nav-item"><i data-lucide="text-cursor-input" class="w-4 h-4"></i> Inputs</div>
+                <div onclick="filterCategory('card')" class="nav-item"><i data-lucide="layout-template" class="w-4 h-4"></i> Cards</div>
             </div>
-            <div>
-                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">System</h4>
-                <div class="px-2 py-1 flex items-center justify-between">
-                    <span class="text-zinc-500 text-xs">Database</span>
-                    <div class="flex items-center gap-1.5"><span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span id="status-text" class="text-[10px] text-zinc-500 font-mono">OFFLINE</span></div>
+            
+            <div class="mt-auto border-t border-border pt-4 px-2">
+                <h4 class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">System Log</h4>
+                <div id="console-log" class="h-24 overflow-y-auto w-full break-words space-y-1">
+                    <div class="log-entry">> Initializing...</div>
                 </div>
             </div>
         </div>
 
         <div class="p-4 border-t border-border bg-black/20">
-            <button onclick="openModal()" id="upload-btn" disabled class="w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onclick="openModal()" id="upload-btn" class="w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Component
             </button>
         </div>
@@ -133,16 +90,16 @@
 
     <main class="flex-1 flex flex-col min-w-0 relative">
         <header class="h-16 border-b border-border bg-black/50 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-8">
-            <div class="flex items-center gap-2 text-zinc-500 text-xs"><i data-lucide="home" class="w-3.5 h-3.5"></i><span>/</span><span>Library</span><span>/</span><span id="current-cat-label" class="text-white font-medium">Overview</span></div>
-            <div class="flex gap-4"><a href="#" class="text-xs text-zinc-500 hover:text-white transition flex items-center gap-1.5"><i data-lucide="github" class="w-3.5 h-3.5"></i> Source</a></div>
+            <div class="flex items-center gap-2 text-zinc-500 text-xs"><i data-lucide="home" class="w-3.5 h-3.5"></i><span>/</span><span id="current-cat-label" class="text-white font-medium">All Components</span></div>
+            <div class="flex gap-4"><div class="flex items-center gap-2"><span id="db-status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span><span id="db-status-text" class="text-xs text-zinc-400">Connecting...</span></div></div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-8">
             <div class="max-w-6xl mx-auto">
                 <div id="grid-container" class="grid grid-cols-1 gap-8 pb-20">
                     <div class="text-center py-24 space-y-4">
-                        <div class="inline-block relative"><div class="w-12 h-12 border border-zinc-800 rounded-full animate-spin border-t-white"></div></div>
-                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Connecting to Firebase...</p>
+                        <div class="w-12 h-12 border border-zinc-800 rounded-full animate-spin border-t-white inline-block"></div>
+                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Syncing Data...</p>
                     </div>
                 </div>
             </div>
@@ -153,30 +110,23 @@
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="bg-[#050505] w-full max-w-2xl rounded-xl border border-border shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
             <div class="h-14 border-b border-border flex items-center justify-between px-6 bg-[#0A0A0A]">
-                <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div><div class="w-2 h-2 rounded-full bg-yellow-500"></div><div class="w-2 h-2 rounded-full bg-green-500"></div><span class="ml-2 text-xs font-mono text-zinc-500">editor.tsx</span></div>
+                <div class="flex items-center gap-2"><span class="text-xs font-mono text-zinc-500">Deploy Component</span></div>
                 <button onclick="closeModal()" class="text-zinc-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-
             <form id="upload-form" class="flex-1 overflow-y-auto p-6 space-y-6">
                 <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Name</label><input type="text" id="comp-title" required class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-white focus:border-accent outline-none transition font-mono" placeholder="MyComponent"></div>
-                    <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Type</label><select id="comp-type" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-zinc-400 focus:border-accent outline-none transition font-mono"><option value="button">Button</option><option value="input">Input</option><option value="card">Card</option><option value="loader">Loader</option></select></div>
+                    <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Name</label><input type="text" id="comp-title" required class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-white focus:border-accent outline-none font-mono" placeholder="MyComponent"></div>
+                    <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Type</label><select id="comp-type" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-zinc-400 focus:border-accent outline-none font-mono"><option value="button">Button</option><option value="input">Input</option><option value="card">Card</option><option value="loader">Loader</option></select></div>
                 </div>
-                <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Code</label><textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none transition resize-none leading-relaxed" spellcheck="false" placeholder="<button>Click me</button>"></textarea></div>
-                <button type="submit" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">Push to Registry</button>
+                <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Code</label><textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none resize-none leading-relaxed" spellcheck="false" placeholder="<button class='...'>...</button>"></textarea></div>
+                <button type="submit" id="submit-btn" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">Push to Registry</button>
             </form>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#111] border border-border text-white px-4 py-2.5 rounded-full shadow-2xl translate-y-24 transition-transform duration-300 z-[100] flex items-center gap-3">
-        <span id="toast-icon" class="w-2 h-2 rounded-full bg-green-500"></span><span id="toast-msg" class="text-xs font-medium">System Operational</span>
-    </div>
-
-    <div id="debug-log" class="fixed bottom-4 right-4 text-[10px] text-zinc-700 font-mono opacity-50 hover:opacity-100 transition">Console Ready</div>
-
     <script>
         // ==================================================
-        // ⚠️ PASTE YOUR CONFIG HERE AGAIN (Required)
+        // ⚠️ 1. PASTE YOUR CONFIG HERE
         // ==================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBCLw0As7hB-B_ZeovtZ8oOWedXomY82qI",
@@ -187,56 +137,121 @@
             appId: "1:807572356674:web:8abe644cd432cf19aef7db"
         };
 
+        // GLOBAL STATE
         let db = null;
         let allData = [];
+        let isOnline = false;
 
+        // INIT
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+            systemLog("System Booting...");
+            
+            // 1. Load LocalStorage Backup First (Immediate Display)
+            loadFromLocal();
+
+            // 2. Try Firebase Connection
             try {
-                firebase.initializeApp(firebaseConfig);
+                if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
+                isOnline = true;
                 updateStatus(true);
+                systemLog("Firebase Connected.");
                 initRealtimeListener();
             } catch(e) {
                 console.error(e);
-                logDebug("Firebase Init Failed: " + e.message);
                 updateStatus(false);
+                systemLog("ERR: Firebase Failed.", true);
             }
         });
 
-        // 1. SAFE REALTIME LISTENER (No Index Required)
+        // --- CORE LOGIC ---
+
+        function loadFromLocal() {
+            const saved = localStorage.getItem('nyx_components');
+            if(saved) {
+                allData = JSON.parse(saved);
+                systemLog(`Loaded ${allData.length} items from Cache.`);
+                renderGrid(allData);
+            }
+        }
+
+        function saveToLocal(data) {
+            localStorage.setItem('nyx_components', JSON.stringify(data));
+        }
+
+        // Listener (No Index Required)
         function initRealtimeListener() {
-            logDebug("Connecting to Firestore...");
-            
-            // REMOVED 'orderBy' to fix index error. We sort in JS.
             db.collection("components").onSnapshot((snapshot) => {
-                allData = [];
-                snapshot.forEach(doc => {
-                    allData.push({ id: doc.id, ...doc.data() });
-                });
+                const cloudData = [];
+                snapshot.forEach(doc => cloudData.push({ id: doc.id, ...doc.data() }));
                 
-                // Client-Side Sort (Newest First)
-                // Falls back to current time if created_at is missing to prevent crash
-                allData.sort((a,b) => {
-                    const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
-                    const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
-                    return timeB - timeA;
-                });
+                // Sort by Time (Client Side)
+                cloudData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
                 
-                logDebug(`Synced ${allData.length} items.`);
+                allData = cloudData; // Update global state
+                saveToLocal(allData); // Update backup
+                systemLog(`Synced ${cloudData.length} items from Cloud.`);
                 renderGrid(allData);
             }, (error) => {
-                console.error(error);
-                logDebug("Read Error: " + error.message);
-                // Even on error, stop loading spinner
-                document.getElementById('grid-container').innerHTML = `<div class="text-center py-20"><p class="text-red-500">Error loading data. Check console.</p></div>`;
+                systemLog("ERR: Read Failed (Permissions?)", true);
             });
         }
 
-        // 2. RENDER
+        // --- UPLOAD HANDLER (The Fix) ---
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Deploying...";
+            btn.disabled = true;
+
+            const newItem = {
+                title: document.getElementById('comp-title').value,
+                type: document.getElementById('comp-type').value,
+                code: document.getElementById('comp-code').value,
+                created_at: new Date().toISOString(), // SAFE TIMESTAMP
+                id: 'temp-' + Date.now() // Temp ID for immediate display
+            };
+
+            // 1. Optimistic Update (Show immediately)
+            allData.unshift(newItem);
+            renderGrid(allData);
+            saveToLocal(allData);
+            closeModal();
+            systemLog("Optimistic Save OK.");
+
+            // 2. Cloud Save (Background)
+            if(isOnline && db) {
+                try {
+                    // Force Timeout if DB is slow
+                    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
+                    const upload = db.collection("components").add({
+                        title: newItem.title,
+                        type: newItem.type,
+                        code: newItem.code,
+                        created_at: newItem.created_at
+                    });
+
+                    await Promise.race([upload, timeout]);
+                    systemLog("Cloud Sync Confirmed.");
+                } catch(err) {
+                    systemLog("ERR: Cloud Save Failed (Saved Locally)", true);
+                    console.error(err);
+                }
+            } else {
+                systemLog("Offline Mode: Saved Locally only.");
+            }
+
+            e.target.reset();
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+
+        // --- RENDERER ---
         function renderGrid(data) {
             const container = document.getElementById('grid-container');
-            if(data.length === 0) {
+            if(!data || data.length === 0) {
                 container.innerHTML = `<div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20"><p class="text-zinc-500 text-sm">Registry is empty.</p></div>`;
                 return;
             }
@@ -250,13 +265,13 @@
                             <button onclick="toggleView('${item.id}', 'prev')" class="p-1.5 hover:bg-white/10 rounded text-zinc-500 hover:text-white transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
-                    <div id="view-prev-${item.id}" class="preview-checkered h-56 flex items-center justify-center p-8 relative">${item.code}</div>
+                    <div id="view-prev-${item.id}" class="preview-checkered h-56 flex items-center justify-center p-8 relative overflow-hidden">${item.code}</div>
                     <div id="view-code-${item.id}" class="hidden h-56 bg-[#050505] relative group/code overflow-hidden">
                         <button onclick="copyCode(\`${encodeURIComponent(item.code)}\`)" class="absolute top-3 right-3 z-10 p-1.5 bg-zinc-800 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-700 opacity-0 group-hover/code:opacity-100 transition"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
                         <div class="h-full overflow-auto custom-scroll"><pre class="language-html h-full text-[11px]"><code class="language-html">${escapeHtml(item.code)}</code></pre></div>
                     </div>
                     <div class="px-5 py-2.5 bg-[#080808] border-t border-border flex justify-between items-center">
-                        <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span><span class="text-[10px] text-zinc-600 font-mono">${item.id.substring(0,8)}</span></div>
+                        <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span><span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,6)}</span></div>
                         <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">${item.type}</span>
                     </div>
                 </div>
@@ -264,63 +279,46 @@
             Prism.highlightAll(); lucide.createIcons();
         }
 
-        // 3. SAFE UPLOAD (ISO String Timestamp)
-        document.getElementById('upload-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerText;
-            btn.innerText = "Deploying...";
-            
-            try {
-                // Generate Safe Timestamp
-                const now = new Date().toISOString(); 
-                
-                await db.collection("components").add({
-                    title: document.getElementById('comp-title').value,
-                    type: document.getElementById('comp-type').value,
-                    code: document.getElementById('comp-code').value,
-                    created_at: now // Storing as string string avoids the 'null' local latency bug
-                });
-                
-                showToast("Deployed Successfully");
-                closeModal();
-                e.target.reset();
-            } catch(err) {
-                console.error(err);
-                showToast("Failed: " + err.message, true);
-                logDebug("Upload Error: " + err.message);
-            } finally {
-                btn.innerText = originalText;
-            }
-        });
+        // --- UTILS ---
+        function systemLog(msg, isErr = false) {
+            const el = document.getElementById('console-log');
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+            el.innerHTML += `<div class="log-entry ${isErr ? 'log-error' : ''}">[${time}] ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
 
-        // Utils
         function toggleView(id, mode) {
             const prev = document.getElementById(`view-prev-${id}`);
             const code = document.getElementById(`view-code-${id}`);
             if(mode === 'preview') { prev.classList.remove('hidden'); code.classList.add('hidden'); }
             else { code.classList.remove('hidden'); prev.classList.add('hidden'); }
         }
-        function updateStatus(connected) {
-            const dot = document.getElementById('status-dot'); const txt = document.getElementById('status-text'); const btn = document.getElementById('upload-btn');
-            if(connected) { dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse"; txt.innerText = "ONLINE"; txt.className = "text-[10px] text-green-500 font-mono font-bold tracking-wider"; btn.disabled = false; }
-            else { dot.className = "w-1.5 h-1.5 rounded-full bg-red-500"; txt.innerText = "OFFLINE"; }
+
+        function updateStatus(online) {
+            const dot = document.getElementById('db-status-dot');
+            const txt = document.getElementById('db-status-text');
+            if(online) { dot.className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse"; txt.innerText = "ONLINE"; txt.className = "text-xs text-green-500 font-mono font-bold"; }
+            else { dot.className = "w-2 h-2 rounded-full bg-red-500"; txt.innerText = "OFFLINE"; }
         }
+
         function filterCategory(cat) {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); event.target.closest('button').classList.add('active');
-            document.getElementById('current-cat-label').innerText = cat === 'all' ? 'Overview' : cat.charAt(0).toUpperCase() + cat.slice(1) + 's';
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('current-cat-label').innerText = cat === 'all' ? 'All Components' : cat.charAt(0).toUpperCase() + cat.slice(1) + 's';
             if(cat === 'all') renderGrid(allData); else renderGrid(allData.filter(i => i.type === cat));
         }
-        function showToast(msg, err) {
-            const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
-            document.getElementById('toast-icon').className = err ? "w-2 h-2 rounded-full bg-red-500" : "w-2 h-2 rounded-full bg-green-500";
-            t.classList.remove('translate-y-24'); setTimeout(() => t.classList.add('translate-y-24'), 3000);
-        }
-        function logDebug(msg) { document.getElementById('debug-log').innerText = "> " + msg; }
+
         function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); showToast("Copied"); }
+        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); systemLog("Code copied."); }
         function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+        
+        // Search
+        document.getElementById('global-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allData.filter(i => i.title.toLowerCase().includes(term));
+            renderGrid(filtered);
+        });
     </script>
 </body>
 </html>
