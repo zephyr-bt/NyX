@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NyxUI | Indestructible</title>
+    <title>NyxUI | Enterprise Registry</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -33,16 +33,19 @@
         .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); pointer-events: none; position: fixed; inset: 0; z-index: -1; }
         .bg-grid { background-size: 50px 50px; background-image: linear-gradient(to right, #111 1px, transparent 1px), linear-gradient(to bottom, #111 1px, transparent 1px); position: fixed; inset: 0; z-index: -2; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
         .prodex-card { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); border: 1px solid #1F1F1F; border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
-        .prodex-card:hover { border-color: #333; transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+        .prodex-card:hover { border-color: #333; transform: translateY(-2px); }
         .preview-checkered { background-color: #050505; background-image: linear-gradient(45deg, #0A0A0A 25%, transparent 25%), linear-gradient(-45deg, #0A0A0A 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0A0A0A 75%), linear-gradient(-45deg, transparent 75%, #0A0A0A 75%); background-size: 20px 20px; }
         ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
         .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 13px; color: #71717a; border-radius: 6px; transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
         .nav-item:hover { color: #fff; background: #111; border-color: #1A1A1A; }
         .nav-item.active { color: #fff; background: #111; border-color: #27272a; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
         
-        #console-log { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #00ff9d; }
-        .log-entry { margin-bottom: 2px; opacity: 0.7; border-left: 2px solid transparent; padding-left: 4px; }
-        .log-error { color: #ff4d4d; border-left-color: #ff4d4d; }
+        /* Badges */
+        .badge-owner { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: black; font-weight: 800; border: 1px solid #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        .badge-co { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; font-weight: 700; border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        
+        /* Protected Elements (Hidden by default) */
+        .protected { display: none !important; }
     </style>
 </head>
 <body class="h-screen flex text-sm selection:bg-blue-500/20 selection:text-blue-200">
@@ -55,84 +58,98 @@
             <div class="w-8 h-8 bg-gradient-to-br from-white to-zinc-400 rounded-lg flex items-center justify-center shadow-lg shadow-white/5">
                 <div class="w-4 h-4 bg-black rounded-md"></div>
             </div>
-            <div><h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1><p class="text-[10px] text-green-500 font-mono">HYBRID SYNC</p></div>
+            <div>
+                <h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1>
+                <p id="user-badge" class="text-[10px] text-zinc-600 font-mono">PUBLIC VIEW</p>
+            </div>
         </div>
 
         <div class="p-4">
-            <input type="text" id="global-search" placeholder="Search components..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 px-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition font-mono">
+            <input type="text" id="global-search" placeholder="Search..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 pl-9 pr-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition placeholder:text-zinc-700 font-mono">
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 space-y-6">
             <div>
-                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">Library</h4>
+                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">Collection</h4>
                 <div onclick="filterCategory('all')" class="nav-item active"><i data-lucide="layers" class="w-4 h-4"></i> All Components</div>
                 <div onclick="filterCategory('button')" class="nav-item"><i data-lucide="mouse-pointer-2" class="w-4 h-4"></i> Buttons</div>
                 <div onclick="filterCategory('input')" class="nav-item"><i data-lucide="text-cursor-input" class="w-4 h-4"></i> Inputs</div>
                 <div onclick="filterCategory('card')" class="nav-item"><i data-lucide="layout-template" class="w-4 h-4"></i> Cards</div>
             </div>
-            
-            <div class="mt-auto border-t border-border pt-4 px-2">
-                <div class="flex justify-between items-center mb-2">
-                    <h4 class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">System Log</h4>
-                    <button onclick="clearLog()" class="text-[9px] text-zinc-700 hover:text-white">CLEAR</button>
-                </div>
-                <div id="console-log" class="h-32 overflow-y-auto w-full break-words space-y-1 bg-black/40 p-2 rounded">
-                    <div class="log-entry">> Initializing...</div>
-                </div>
-            </div>
         </div>
 
         <div class="p-4 border-t border-border bg-black/20">
-            <button onclick="openModal()" id="upload-btn" class="w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+            <button onclick="openModal('upload-modal')" id="upload-btn" class="protected w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Component
+            </button>
+            <button onclick="openModal('auth-modal')" id="login-btn" class="w-full bg-[#111] text-zinc-500 hover:text-white border border-border py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i> Admin Access
             </button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0 relative">
         <header class="h-16 border-b border-border bg-black/50 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-8">
-            <div class="flex items-center gap-2 text-zinc-500 text-xs"><i data-lucide="home" class="w-3.5 h-3.5"></i><span>/</span><span id="current-cat-label" class="text-white font-medium">All Components</span></div>
-            <div class="flex gap-4"><div class="flex items-center gap-2"><span id="db-status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span><span id="db-status-text" class="text-xs text-zinc-400">Connecting...</span></div></div>
+            <div class="flex items-center gap-2 text-zinc-500 text-xs"><i data-lucide="home" class="w-3.5 h-3.5"></i><span>/</span><span id="current-cat-label" class="text-white font-medium">Overview</span></div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span><span class="text-xs text-zinc-400">System Live</span></div>
+            </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-8">
             <div class="max-w-6xl mx-auto">
                 <div id="grid-container" class="grid grid-cols-1 gap-8 pb-20">
                     <div class="text-center py-24 space-y-4">
-                        <div class="w-12 h-12 border border-zinc-800 rounded-full animate-spin border-t-white inline-block"></div>
-                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Checking Storage...</p>
+                        <div class="w-8 h-8 border border-zinc-800 rounded-full animate-spin border-t-white inline-block"></div>
+                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Loading Ecosystem...</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <div id="auth-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="closeModal('auth-modal')"></div>
+        <div class="bg-[#050505] w-full max-w-sm rounded-xl border border-border shadow-2xl relative z-10 p-8 text-center">
+            <div class="mb-6">
+                <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+                </div>
+                <h2 class="text-lg font-bold text-white">Restricted Access</h2>
+                <p class="text-xs text-zinc-500 mt-1">Authorized Personnel Only</p>
+            </div>
+            <form id="auth-form" class="space-y-4">
+                <input type="text" id="auth-name" placeholder="Auth Name" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none font-mono text-center">
+                <input type="password" id="auth-pass" placeholder="Access Key" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none font-mono text-center">
+                <button type="submit" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">Authenticate</button>
+            </form>
+        </div>
+    </div>
+
     <div id="upload-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeModal('upload-modal')"></div>
         <div class="bg-[#050505] w-full max-w-2xl rounded-xl border border-border shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
             <div class="h-14 border-b border-border flex items-center justify-between px-6 bg-[#0A0A0A]">
-                <div class="flex items-center gap-2"><span class="text-xs font-mono text-zinc-500">Deploy Component</span></div>
-                <button onclick="closeModal()" class="text-zinc-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <span class="text-xs font-mono text-zinc-500">Deploy Component</span>
+                <button onclick="closeModal('upload-modal')" class="text-zinc-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <form id="upload-form" class="flex-1 overflow-y-auto p-6 space-y-6">
                 <div class="grid grid-cols-2 gap-6">
                     <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Name</label><input type="text" id="comp-title" required class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-white focus:border-accent outline-none font-mono" placeholder="MyComponent"></div>
                     <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Type</label><select id="comp-type" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-zinc-400 focus:border-accent outline-none font-mono"><option value="button">Button</option><option value="input">Input</option><option value="card">Card</option><option value="loader">Loader</option></select></div>
                 </div>
-                <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Code</label><textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none resize-none leading-relaxed" spellcheck="false" placeholder="<button class='...'>...</button>"></textarea></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Code</label><textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none resize-none leading-relaxed" spellcheck="false" placeholder="<button>Click me</button>"></textarea></div>
                 <button type="submit" id="submit-btn" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">Push to Registry</button>
             </form>
         </div>
     </div>
 
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#111] border border-border text-white px-4 py-2.5 rounded-full shadow-2xl translate-y-24 transition-transform duration-300 z-[100] flex items-center gap-3">
-        <span id="toast-icon" class="w-2 h-2 rounded-full bg-green-500"></span><span id="toast-msg" class="text-xs font-medium">System Operational</span>
+        <span id="toast-icon" class="w-2 h-2 rounded-full bg-green-500"></span><span id="toast-msg" class="text-xs font-medium">Action Successful</span>
     </div>
 
     <script>
-        // ==================================================
-        // ⚡ FIREBASE CONFIGURATION
-        // ==================================================
+        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBCLw0As7hB-B_ZeovtZ8oOWedXomY82qI",
             authDomain: "novanexus-9ee9a.firebaseapp.com",
@@ -141,170 +158,94 @@
             messagingSenderId: "807572356674",
             appId: "1:807572356674:web:8abe644cd432cf19aef7db"
         };
+        const COLLECTION_NAME = "nyx-registry-v1";
 
-        const STORAGE_KEY = 'nyx_registry_backup_v2';
-        const COLLECTION_NAME = 'nyx-components-v2';
-
+        // STATE
         let db = null;
         let allData = [];
-        let isOnline = false;
+        let userRole = 'guest'; // guest, owner, co-owner
+
+        // AUTH DATA (In Real App, this is on Server)
+        const CREDENTIALS = {
+            'nyxowner6272773064@@</>()&': { pass: 'notnyxisadev', role: 'owner', badge: 'SYSTEM ARCHITECT' },
+            'nyx_co_zephyr_X99$': { pass: 'vertex_access_granted', role: 'co-owner', badge: 'CORE MAINTAINER' }
+        };
 
         // INIT
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            systemLog("System Booting...");
-            
-            // 1. HYBRID LOAD: Load LocalStorage FIRST (Instant UI)
-            loadFromLocal();
-
-            // 2. CONNECT FIREBASE
             try {
-                if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
-                isOnline = true;
-                updateStatus(true);
-                systemLog("Firebase Connected.");
                 initRealtimeListener();
             } catch(e) {
                 console.error(e);
-                updateStatus(false);
-                systemLog("ERR: Firebase Failed.", true);
+                showToast("DB Connection Error", true);
             }
         });
 
-        // --- CORE LOGIC ---
-
-        function loadFromLocal() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if(saved) {
-                try {
-                    allData = JSON.parse(saved);
-                    systemLog(`Loaded ${allData.length} items from Local Backup.`);
-                    renderGrid(allData);
-                } catch(e) {
-                    systemLog("Backup Corrupt. Cleared.", true);
-                    localStorage.removeItem(STORAGE_KEY);
-                }
+        // 1. AUTH LOGIC
+        document.getElementById('auth-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('auth-name').value;
+            const pass = document.getElementById('auth-pass').value;
+            
+            if (CREDENTIALS[name] && CREDENTIALS[name].pass === pass) {
+                userRole = CREDENTIALS[name].role;
+                updateUI(CREDENTIALS[name].badge);
+                closeModal('auth-modal');
+                showToast("Access Granted: " + userRole.toUpperCase());
+                e.target.reset();
             } else {
-                renderGrid([]);
+                showToast("Access Denied", true);
             }
+        });
+
+        function updateUI(badgeText) {
+            // Show Upload Button
+            document.getElementById('upload-btn').classList.remove('protected');
+            document.getElementById('upload-btn').classList.add('flex');
+            
+            // Hide Login Button
+            document.getElementById('login-btn').style.display = 'none';
+
+            // Update Badge
+            const badgeEl = document.getElementById('user-badge');
+            badgeEl.innerText = badgeText;
+            
+            if(userRole === 'owner') {
+                badgeEl.className = "text-[9px] px-2 py-0.5 rounded badge-owner mt-1 inline-block";
+            } else {
+                badgeEl.className = "text-[9px] px-2 py-0.5 rounded badge-co mt-1 inline-block";
+            }
+
+            // Re-render grid to show delete buttons
+            renderGrid(allData);
         }
 
-        function saveToLocal(data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-
-        // Listener
+        // 2. DATA LISTENER
         function initRealtimeListener() {
             db.collection(COLLECTION_NAME).onSnapshot((snapshot) => {
-                const cloudData = [];
-                snapshot.forEach(doc => cloudData.push({ id: doc.id, ...doc.data() }));
-                
-                if (cloudData.length > 0) {
-                    // Cloud has data -> Update Local & UI
-                    cloudData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-                    allData = cloudData;
-                    saveToLocal(allData);
-                    systemLog(`Synced ${cloudData.length} items from Cloud.`);
-                    renderGrid(allData);
-                } else {
-                    systemLog("Cloud is empty.", true);
-                    // If cloud is empty but we have local data, we might want to keep local or clear.
-                    // For safety, we trust the cloud if connected.
-                    if(allData.length > 0 && confirm("Cloud is empty but you have local data. Re-upload local data to cloud?")) {
-                         reUploadLocalToCloud();
-                    }
-                }
-            }, (error) => {
-                console.error(error);
-                systemLog("ERR: Read Failed. Using Local Backup.", true);
+                allData = [];
+                snapshot.forEach(doc => {
+                    allData.push({ id: doc.id, ...doc.data() });
+                });
+                allData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                renderGrid(allData);
             });
         }
 
-        async function reUploadLocalToCloud() {
-            systemLog("Restoring Cloud from Local...");
-            for(const item of allData) {
-                try {
-                    await db.collection(COLLECTION_NAME).doc(item.id).set(item);
-                } catch(e) { console.error(e); }
-            }
-            systemLog("Restore Complete.");
-        }
-
-        // --- UPLOAD HANDLER (OPTIMISTIC UPDATE) ---
-        document.getElementById('upload-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "Deploying...";
-            btn.disabled = true;
-
-            const newItem = {
-                title: document.getElementById('comp-title').value,
-                type: document.getElementById('comp-type').value,
-                code: document.getElementById('comp-code').value,
-                created_at: new Date().toISOString(),
-                id: 'comp-' + Date.now() // Temp ID
-            };
-
-            // 1. UPDATE UI INSTANTLY (Optimistic)
-            allData.unshift(newItem);
-            renderGrid(allData);
-            saveToLocal(allData);
-            closeModal();
-            showToast("Deployed (Local)");
-            systemLog("Optimistic Save OK.");
-
-            // 2. BACKGROUND CLOUD SYNC
-            if(isOnline && db) {
-                try {
-                    // We use .doc(id).set() to keep the ID consistent
-                    await db.collection(COLLECTION_NAME).doc(newItem.id).set(newItem);
-                    systemLog("Cloud Sync Confirmed.");
-                    showToast("Deployed (Cloud Confirmed)");
-                } catch(err) {
-                    systemLog("ERR: Cloud Write Failed (Saved Locally)", true);
-                    console.error(err);
-                }
-            }
-
-            e.target.reset();
-            btn.innerText = originalText;
-            btn.disabled = false;
-        });
-
-        // --- DELETE HANDLER ---
-        async function deleteComponent(id) {
-            if(confirm("Delete this component?")) {
-                // 1. Optimistic Delete
-                allData = allData.filter(i => i.id !== id);
-                renderGrid(allData);
-                saveToLocal(allData);
-                showToast("Deleted");
-
-                // 2. Cloud Delete
-                if(isOnline && db) {
-                    try {
-                        await db.collection(COLLECTION_NAME).doc(id).delete();
-                        systemLog("Cloud Delete Confirmed.");
-                    } catch(e) {
-                        systemLog("Cloud Delete Failed", true);
-                    }
-                }
-            }
-        }
-
-        // --- RENDERER ---
+        // 3. RENDER GRID (PROTECTED DELETE)
         function renderGrid(data) {
             const container = document.getElementById('grid-container');
-            if(!data || data.length === 0) {
+            if(data.length === 0) {
                 container.innerHTML = `<div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20"><p class="text-zinc-500 text-sm">Registry is empty.</p></div>`;
                 return;
             }
 
             container.innerHTML = data.map(item => `
                 <div class="prodex-card group relative">
-                    <button onclick="deleteComponent('${item.id}')" class="absolute top-3 right-3 z-20 p-1.5 bg-red-500/10 text-red-500 rounded opacity-0 group-hover:opacity-100 transition hover:bg-red-500 hover:text-white" title="Delete">
+                    <button onclick="deleteComponent('${item.id}')" class="${userRole === 'guest' ? 'protected' : ''} absolute top-3 right-3 z-20 p-1.5 bg-red-500/10 text-red-500 rounded opacity-0 group-hover:opacity-100 transition hover:bg-red-500 hover:text-white" title="Delete">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                     </button>
 
@@ -321,7 +262,7 @@
                         <div class="h-full overflow-auto custom-scroll"><pre class="language-html h-full text-[11px]"><code class="language-html">${escapeHtml(item.code)}</code></pre></div>
                     </div>
                     <div class="px-5 py-2.5 bg-[#080808] border-t border-border flex justify-between items-center">
-                        <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span><span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,6)}</span></div>
+                        <span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,6)}</span>
                         <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">${item.type}</span>
                     </div>
                 </div>
@@ -329,49 +270,67 @@
             Prism.highlightAll(); lucide.createIcons();
         }
 
-        // --- UTILS ---
-        function systemLog(msg, isErr = false) {
-            const el = document.getElementById('console-log');
-            const time = new Date().toLocaleTimeString().split(' ')[0];
-            el.innerHTML += `<div class="log-entry ${isErr ? 'log-error' : ''}">[${time}] ${msg}</div>`;
-            el.scrollTop = el.scrollHeight;
-        }
-        function clearLog() { document.getElementById('console-log').innerHTML = ''; }
+        // 4. UPLOAD (Only works if UI unlocked)
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(userRole === 'guest') return;
 
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Deploying...";
+            
+            try {
+                await db.collection(COLLECTION_NAME).add({
+                    title: document.getElementById('comp-title').value,
+                    type: document.getElementById('comp-type').value,
+                    code: document.getElementById('comp-code').value,
+                    created_at: new Date().toISOString()
+                });
+                showToast("Component Published");
+                closeModal('upload-modal');
+                e.target.reset();
+            } catch(err) {
+                console.error(err);
+                showToast("Error: " + err.message, true);
+            } finally {
+                btn.innerText = "Push to Registry";
+            }
+        });
+
+        // 5. DELETE
+        async function deleteComponent(id) {
+            if(userRole === 'guest') return;
+            if(confirm("Are you sure? This cannot be undone.")) {
+                try {
+                    await db.collection(COLLECTION_NAME).doc(id).delete();
+                    showToast("Deleted");
+                } catch(err) {
+                    showToast("Delete Failed", true);
+                }
+            }
+        }
+
+        // UTILS
         function toggleView(id, mode) {
             const prev = document.getElementById(`view-prev-${id}`);
             const code = document.getElementById(`view-code-${id}`);
             if(mode === 'preview') { prev.classList.remove('hidden'); code.classList.add('hidden'); }
             else { code.classList.remove('hidden'); prev.classList.add('hidden'); }
         }
-
-        function updateStatus(connected) {
-            const dot = document.getElementById('db-status-dot');
-            const txt = document.getElementById('db-status-text');
-            const btn = document.getElementById('upload-btn');
-            
-            if(connected) {
-                dot.className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse";
-                txt.innerText = "ONLINE"; txt.className = "text-xs text-green-500 font-mono font-bold tracking-wider";
-                btn.disabled = false;
-            } else {
-                dot.className = "w-2 h-2 rounded-full bg-red-500";
-                txt.innerText = "OFFLINE";
-            }
-        }
-
         function filterCategory(cat) {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             event.target.closest('div').classList.add('active');
             document.getElementById('current-cat-label').innerText = cat === 'all' ? 'Overview' : cat.charAt(0).toUpperCase() + cat.slice(1) + 's';
             if(cat === 'all') renderGrid(allData); else renderGrid(allData.filter(i => i.type === cat));
         }
-
-        function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); systemLog("Code copied."); }
+        function showToast(msg, err) {
+            const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').className = err ? "w-2 h-2 rounded-full bg-red-500" : "w-2 h-2 rounded-full bg-green-500";
+            t.classList.remove('translate-y-24'); setTimeout(() => t.classList.add('translate-y-24'), 3000);
+        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); showToast("Copied"); }
         function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
-        
         document.getElementById('global-search').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             const filtered = allData.filter(i => i.title.toLowerCase().includes(term));
