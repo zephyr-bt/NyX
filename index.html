@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NyxUI Registry | Sovereign</title>
+    <title>NyxUI | Prodex Studio</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
 
@@ -20,12 +20,15 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'] 
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
                     colors: {
-                        nyx: { bg: '#050507', sidebar: '#0B0B0E', border: 'rgba(255, 255, 255, 0.08)' }
+                        bg: '#030303',
+                        surface: '#0A0A0A',
+                        border: '#1F1F1F',
+                        accent: '#3b82f6'
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
@@ -33,180 +36,210 @@
     </script>
 
     <style>
-        body { background-color: #050507; color: #fff; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #050507; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        body { background-color: #030303; color: #e4e4e7; overflow-x: hidden; }
         
-        .prodex-grid {
-            position: fixed; inset: 0; background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            mask-image: radial-gradient(circle at 50% 0%, black 60%, transparent 100%);
-            z-index: -1; pointer-events: none;
-        }
-        
-        /* Interactive Card */
-        .comp-card {
-            background: #0B0B0E; border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px; overflow: hidden; transition: all 0.3s ease;
-        }
-        .comp-card:hover { border-color: rgba(249, 115, 22, 0.3); transform: translateY(-2px); }
-        
-        /* Preview Area */
-        .preview-area {
-            background-image: radial-gradient(#222 1px, transparent 1px);
-            background-size: 20px 20px; background-color: #08080A;
-        }
-        
-        /* Prism Overrides */
-        pre[class*="language-"] {
-            margin: 0 !important; border-radius: 0 !important; background: #08080A !important;
-            padding: 20px !important; font-size: 13px !important; border-top: 1px solid rgba(255,255,255,0.06);
+        /* NOISE TEXTURE */
+        .bg-noise {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none; position: fixed; inset: 0; z-index: -1;
         }
 
-        .editor-input {
-            font-family: 'JetBrains Mono', monospace;
-            background: #0F0F12;
-            color: #a9b7c6;
-            line-height: 1.5;
+        /* GRID BACKGROUND */
+        .bg-grid {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, #111 1px, transparent 1px),
+                              linear-gradient(to bottom, #111 1px, transparent 1px);
+            position: fixed; inset: 0; z-index: -2;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
         }
+
+        /* PRODEX CARD */
+        .prodex-card {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1F1F1F;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .prodex-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255,255,255,0.06), transparent 40%);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .prodex-card:hover::after { opacity: 1; }
+        .prodex-card:hover { border-color: #333; transform: translateY(-2px); }
+
+        /* PREVIEW AREA */
+        .preview-checkered {
+            background-color: #050505;
+            background-image: linear-gradient(45deg, #0A0A0A 25%, transparent 25%), 
+                              linear-gradient(-45deg, #0A0A0A 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #0A0A0A 75%), 
+                              linear-gradient(-45deg, transparent 75%, #0A0A0A 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+        /* SIDEBAR ITEM */
+        .nav-item {
+            display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+            font-size: 13px; color: #71717a; border-radius: 6px; transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .nav-item:hover { color: #fff; background: #111; border-color: #1A1A1A; }
+        .nav-item.active { color: #fff; background: #111; border-color: #27272a; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
     </style>
 </head>
-<body class="antialiased h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="h-screen flex text-sm selection:bg-blue-500/20 selection:text-blue-200">
 
-    <div class="prodex-grid"></div>
+    <div class="bg-noise"></div>
+    <div class="bg-grid"></div>
 
-    <aside class="w-full md:w-64 bg-[#0B0B0E] border-r border-nyx-border flex flex-col shrink-0 z-20 md:h-full">
-        <div class="h-16 flex items-center gap-3 px-6 border-b border-nyx-border shrink-0">
-            <div class="w-8 h-8 bg-[#121216] rounded-lg flex items-center justify-center border border-white/10">
-                <div class="w-4 h-4 bg-orange-600 rounded-sm"></div>
+    <aside class="w-64 border-r border-border bg-black/50 backdrop-blur-xl flex flex-col shrink-0 z-50">
+        <div class="h-16 flex items-center px-5 border-b border-border gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-white to-zinc-400 rounded-lg flex items-center justify-center shadow-lg shadow-white/5">
+                <div class="w-4 h-4 bg-black rounded-md"></div>
             </div>
-            <span class="font-bold text-lg tracking-tight">NyxUI <span class="text-[10px] text-gray-500 font-normal">FIRE</span></span>
+            <div>
+                <h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1>
+                <p class="text-[10px] text-zinc-600 font-mono">v3.0.0-PRODEX</p>
+            </div>
         </div>
 
         <div class="p-4">
             <div class="relative group">
-                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-gray-500 group-focus-within:text-orange-400 transition"></i>
-                <input type="text" id="global-search" placeholder="Search registry..." 
-                       class="w-full bg-[#121216] border border-nyx-border rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:border-orange-500/50 outline-none transition">
+                <i data-lucide="command" class="absolute left-3 top-2.5 w-3.5 h-3.5 text-zinc-600 group-focus-within:text-white transition"></i>
+                <input type="text" id="global-search" placeholder="Filter..." 
+                       class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 pl-9 pr-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition placeholder:text-zinc-700 font-mono">
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
+        <div class="flex-1 overflow-y-auto px-3 space-y-6">
             <div>
-                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Library</h4>
-                <ul class="space-y-1">
-                    <li><button onclick="filterCategory('all')" class="cat-btn active w-full text-left px-2 py-1.5 rounded-md text-sm font-medium text-white bg-white/5">All Components</button></li>
-                    <li><button onclick="filterCategory('button')" class="cat-btn w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/5">Buttons</button></li>
-                    <li><button onclick="filterCategory('input')" class="cat-btn w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/5">Inputs</button></li>
-                    <li><button onclick="filterCategory('card')" class="cat-btn w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/5">Cards</button></li>
-                    <li><button onclick="filterCategory('loader')" class="cat-btn w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/5">Loaders</button></li>
-                </ul>
+                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">Collection</h4>
+                <button onclick="filterCategory('all')" class="nav-item active w-full"><i data-lucide="layers" class="w-4 h-4"></i> All Components</button>
+                <button onclick="filterCategory('button')" class="nav-item w-full"><i data-lucide="mouse-pointer-2" class="w-4 h-4"></i> Buttons</button>
+                <button onclick="filterCategory('input')" class="nav-item w-full"><i data-lucide="text-cursor-input" class="w-4 h-4"></i> Inputs</button>
+                <button onclick="filterCategory('card')" class="nav-item w-full"><i data-lucide="layout-template" class="w-4 h-4"></i> Cards</button>
+            </div>
+            <div>
+                <h4 class="px-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2 font-mono">System</h4>
+                <div class="px-2 py-1 flex items-center justify-between">
+                    <span class="text-zinc-500 text-xs">Database</span>
+                    <div class="flex items-center gap-1.5">
+                        <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                        <span id="status-text" class="text-[10px] text-zinc-500 font-mono">OFFLINE</span>
+                    </div>
+                </div>
+                <div class="px-2 py-1 flex items-center justify-between">
+                    <span class="text-zinc-500 text-xs">Latency</span>
+                    <span class="text-[10px] text-zinc-600 font-mono">24ms</span>
+                </div>
             </div>
         </div>
 
-        <div class="p-4 border-t border-nyx-border bg-[#08080A]">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold text-gray-500 uppercase">Backend Status</span>
-                <span id="db-status-dot" class="w-2 h-2 rounded-full bg-red-500"></span>
-            </div>
-            <p id="db-status-text" class="text-xs text-gray-400">Connecting...</p>
+        <div class="p-4 border-t border-border bg-black/20">
+            <button onclick="openModal()" id="upload-btn" disabled class="w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Component
+            </button>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-        <header class="h-16 border-b border-nyx-border flex items-center justify-between px-8 bg-[#050507]/80 backdrop-blur-md z-10 shrink-0">
-            <div class="flex items-center gap-2 text-sm text-gray-400">
-                <span>Components</span><i data-lucide="chevron-right" class="w-4 h-4"></i><span id="current-category" class="text-white font-medium">All</span>
+    <main class="flex-1 flex flex-col min-w-0 relative">
+        <header class="h-16 border-b border-border bg-black/50 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-8">
+            <div class="flex items-center gap-2 text-zinc-500 text-xs">
+                <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                <span>/</span>
+                <span>Library</span>
+                <span>/</span>
+                <span id="current-cat-label" class="text-white font-medium">Overview</span>
             </div>
-            
-            <button onclick="openModal()" id="upload-trigger-btn" class="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-orange-500 transition opacity-50 cursor-not-allowed" disabled>
-                <i data-lucide="cloud-off" class="w-4 h-4"></i> Config Required
-            </button>
+            <div class="flex gap-4">
+                <a href="#" class="text-xs text-zinc-500 hover:text-white transition flex items-center gap-1.5">
+                    <i data-lucide="github" class="w-3.5 h-3.5"></i> Source
+                </a>
+            </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8" id="scroll-container">
+        <div class="flex-1 overflow-y-auto p-8">
             <div class="max-w-6xl mx-auto">
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-[#0B0B0E] border border-nyx-border p-4 rounded-xl flex items-center gap-4">
-                        <div class="p-3 bg-orange-500/10 rounded-lg text-orange-500"><i data-lucide="flame" class="w-5 h-5"></i></div>
-                        <div><p class="text-xs text-gray-500 uppercase">Backend</p><h3 class="text-xl font-bold">Firebase</h3></div>
-                    </div>
-                    <div class="bg-[#0B0B0E] border border-nyx-border p-4 rounded-xl flex items-center gap-4">
-                        <div class="p-3 bg-blue-500/10 rounded-lg text-blue-500"><i data-lucide="database" class="w-5 h-5"></i></div>
-                        <div><p class="text-xs text-gray-500 uppercase">Items</p><h3 id="stat-count" class="text-xl font-bold">0</h3></div>
-                    </div>
-                    <div class="bg-[#0B0B0E] border border-nyx-border p-4 rounded-xl flex items-center gap-4">
-                        <div class="p-3 bg-green-500/10 rounded-lg text-green-500"><i data-lucide="activity" class="w-5 h-5"></i></div>
-                        <div><p class="text-xs text-gray-500 uppercase">Status</p><h3 class="text-xl font-bold">Live</h3></div>
+                <div id="grid-container" class="grid grid-cols-1 gap-8 pb-20">
+                    <div class="text-center py-24 space-y-4">
+                        <div class="inline-block relative">
+                            <div class="w-12 h-12 border border-zinc-800 rounded-full animate-spin border-t-white"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Connecting to NovaNexus...</p>
                     </div>
                 </div>
-
-                <div id="component-grid" class="grid grid-cols-1 gap-10 pb-20">
-                    <div class="py-20 text-center">
-                        <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto text-gray-600 mb-4"></i>
-                        <p class="text-gray-500">Connecting to NovaNexus...</p>
-                    </div>
-                </div>
-
             </div>
         </div>
     </main>
 
     <div id="upload-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="bg-[#0B0B0E] w-full max-w-2xl rounded-2xl border border-white/10 flex flex-col relative z-10 shadow-2xl max-h-[90vh]">
-            <div class="p-5 border-b border-white/10 flex justify-between items-center">
-                <h2 class="text-lg font-bold">Add Component</h2>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="bg-[#050505] w-full max-w-2xl rounded-xl border border-border shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="h-14 border-b border-border flex items-center justify-between px-6 bg-[#0A0A0A]">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span class="ml-2 text-xs font-mono text-zinc-500">editor.tsx</span>
+                </div>
+                <button onclick="closeModal()" class="text-zinc-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            
-            <form id="upload-form" class="p-6 space-y-5 overflow-y-auto">
-                <div class="grid grid-cols-2 gap-5">
-                    <div>
-                        <label class="text-xs text-gray-500 font-bold mb-2 block">Component Title</label>
-                        <input type="text" id="comp-title" required placeholder="e.g. Neon Button" class="w-full bg-[#121216] border border-white/10 rounded-lg p-3 text-sm focus:border-orange-500 outline-none text-white transition">
+
+            <form id="upload-form" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Component Name</label>
+                        <input type="text" id="comp-title" required class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-white focus:border-accent outline-none transition font-mono" placeholder="MyComponent">
                     </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-bold mb-2 block">Category</label>
-                        <select id="comp-type" class="w-full bg-[#121216] border border-white/10 rounded-lg p-3 text-sm focus:border-orange-500 outline-none text-gray-400 transition">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Type</label>
+                        <select id="comp-type" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-zinc-400 focus:border-accent outline-none transition font-mono">
                             <option value="button">Button</option>
                             <option value="input">Input</option>
                             <option value="card">Card</option>
                             <option value="loader">Loader</option>
-                            <option value="nav">Navigation</option>
                         </select>
                     </div>
                 </div>
                 
-                <div>
-                    <label class="text-xs text-gray-500 font-bold mb-2 block">Source Code (JSX/HTML)</label>
-                    <div class="relative">
-                        <textarea id="comp-code" required rows="10" placeholder="<button class='...'>...</button>" 
-                                  class="editor-input w-full rounded-lg p-4 border border-white/10 focus:border-orange-500 outline-none text-sm"></textarea>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Source Code</label>
+                    <div class="relative group">
+                        <textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none transition resize-none leading-relaxed" spellcheck="false" placeholder="<button>Click me</button>"></textarea>
+                        <div class="absolute bottom-3 right-3 text-[10px] text-zinc-600 font-mono">JSX / HTML</div>
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
-                        <i data-lucide="upload-cloud" class="w-4 h-4"></i> Publish to Firebase
-                    </button>
-                </div>
+                <button type="submit" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">
+                    Push to Registry
+                </button>
             </form>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 right-6 bg-[#121216] border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl translate-y-32 transition-transform duration-300 z-[100] flex items-center gap-3">
-        <div class="p-1 bg-green-500/20 rounded text-green-500"><i data-lucide="check" class="w-4 h-4"></i></div>
-        <span id="toast-msg" class="text-sm font-medium">Operation Successful</span>
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#111] border border-border text-white px-4 py-2.5 rounded-full shadow-2xl translate-y-24 transition-transform duration-300 z-[100] flex items-center gap-3">
+        <span id="toast-icon" class="w-2 h-2 rounded-full bg-green-500"></span>
+        <span id="toast-msg" class="text-xs font-medium">System Operational</span>
     </div>
 
     <script>
-        // ======================================================
-        // 🔥 REAL FIREBASE CONFIGURATION
-        // ======================================================
+        // ==========================================
+        // ⚡ FIREBASE CONFIGURATION
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBCLw0As7hB-B_ZeovtZ8oOWedXomY82qI",
             authDomain: "novanexus-9ee9a.firebaseapp.com",
@@ -217,123 +250,106 @@
         };
 
         let db = null;
-        let isConnected = false;
-        let allComponents = [];
+        let allData = [];
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        // INITIALIZE
+        window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             
+            // Mouse tracking for card glow effect
+            document.getElementById('grid-container').onmousemove = e => {
+                for(const card of document.getElementsByClassName("prodex-card")) {
+                    const rect = card.getBoundingClientRect(),
+                          x = e.clientX - rect.left,
+                          y = e.clientY - rect.top;
+                    card.style.setProperty("--mouse-x", `${x}px`);
+                    card.style.setProperty("--mouse-y", `${y}px`);
+                }
+            };
+
             try {
-                // Initialize Firebase
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
-                isConnected = true;
-                updateConnectionUI(true);
-                fetchComponents();
-            } catch (e) {
-                console.error("Firebase Init Error:", e);
-                updateConnectionUI(false);
+                updateStatus(true);
+                initRealtimeListener();
+            } catch(e) {
+                console.error(e);
+                updateStatus(false);
             }
         });
 
-        // 2. UI STATUS
-        function updateConnectionUI(status) {
-            const dot = document.getElementById('db-status-dot');
-            const text = document.getElementById('db-status-text');
-            const btn = document.getElementById('upload-trigger-btn');
-            
-            if(status) {
-                dot.classList.remove('bg-red-500'); dot.classList.add('bg-green-500', 'animate-pulse');
-                text.innerText = "Connected"; text.classList.replace('text-gray-400', 'text-green-400');
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                btn.classList.add('bg-orange-600', 'hover:bg-orange-500');
-                btn.innerHTML = `<i data-lucide="plus" class="w-4 h-4"></i> New Component`;
-            } else {
-                dot.classList.add('bg-red-500');
-                text.innerText = "Error";
-                btn.disabled = true;
-            }
-            lucide.createIcons();
-        }
-
-        // 3. FETCH (Realtime Listener)
-        function fetchComponents() {
-            if(!db) return;
-            
-            // Listen for realtime updates
-            db.collection("components").orderBy("created_at", "desc").onSnapshot((snapshot) => {
-                allComponents = [];
-                snapshot.forEach((doc) => {
-                    allComponents.push({ id: doc.id, ...doc.data() });
+        // REALTIME DB LISTENER
+        function initRealtimeListener() {
+            // Sort client-side to avoid index errors
+            db.collection("components").onSnapshot((snapshot) => {
+                allData = [];
+                snapshot.forEach(doc => {
+                    allData.push({ id: doc.id, ...doc.data() });
                 });
+                // Sort Descending Time
+                allData.sort((a,b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
                 
-                document.getElementById('stat-count').innerText = allComponents.length;
-                renderGrid(allComponents);
-            }, (error) => {
-                console.error("Error fetching docs: ", error);
-                // If permission denied or other error
-                if(error.code === 'permission-denied') {
-                    showToast("Error: Permission Denied. Check Firestore Rules.", true);
-                }
+                renderGrid(allData);
             });
         }
 
-        // 4. RENDER
+        // RENDER UI
         function renderGrid(data) {
-            const grid = document.getElementById('component-grid');
+            const container = document.getElementById('grid-container');
             
             if(data.length === 0) {
-                grid.innerHTML = `
-                    <div class="py-20 text-center border border-dashed border-white/10 rounded-2xl">
-                        <p class="text-gray-500">Registry is empty. Use the button above to upload.</p>
+                container.innerHTML = `
+                    <div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20">
+                        <p class="text-zinc-500 text-sm">Registry is empty. Initialize your first component.</p>
                     </div>`;
                 return;
             }
 
-            grid.innerHTML = '';
-            data.forEach(comp => {
-                const el = document.createElement('div');
-                el.className = 'comp-card';
-                el.innerHTML = `
-                    <div class="px-6 py-4 border-b border-nyx-border flex justify-between items-center bg-[#0F0F12]">
+            container.innerHTML = data.map(item => `
+                <div class="prodex-card group">
+                    <div class="h-12 px-5 flex items-center justify-between border-b border-border bg-[#050505]">
                         <div class="flex items-center gap-3">
-                            <span class="p-1.5 bg-white/5 rounded text-gray-400"><i data-lucide="box" class="w-4 h-4"></i></span>
-                            <h3 class="text-sm font-bold text-white">${comp.title}</h3>
+                            <span class="p-1 rounded bg-white/5 text-zinc-400"><i data-lucide="box" class="w-3.5 h-3.5"></i></span>
+                            <span class="text-xs font-bold text-zinc-200">${item.title}</span>
                         </div>
-                        <div class="flex bg-[#050507] rounded-lg p-1 border border-nyx-border">
-                            <button onclick="switchView('${comp.id}', 'prev')" id="btn-prev-${comp.id}" class="px-3 py-1 rounded text-xs font-medium bg-[#1F1F23] text-white shadow-sm">Preview</button>
-                            <button onclick="switchView('${comp.id}', 'code')" id="btn-code-${comp.id}" class="px-3 py-1 rounded text-xs font-medium text-gray-500 hover:text-white">Code</button>
+                        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="toggleView('${item.id}', 'code')" class="p-1.5 hover:bg-white/10 rounded text-zinc-500 hover:text-white transition"><i data-lucide="code" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="toggleView('${item.id}', 'prev')" class="p-1.5 hover:bg-white/10 rounded text-zinc-500 hover:text-white transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
-                    <div id="view-prev-${comp.id}" class="preview-area h-64 flex items-center justify-center border-b border-nyx-border relative overflow-hidden p-8">
-                        ${comp.code}
+
+                    <div id="view-prev-${item.id}" class="preview-checkered h-56 flex items-center justify-center p-8 relative">
+                        ${item.code}
                     </div>
-                    <div id="view-code-${comp.id}" class="hidden relative group bg-[#08080A]">
-                        <button onclick="copyCode(\`${encodeURIComponent(comp.code)}\`)" class="absolute top-3 right-3 p-2 bg-white/10 rounded-lg text-white opacity-0 group-hover:opacity-100 transition"><i data-lucide="copy" class="w-4 h-4"></i></button>
-                        <pre class="language-html"><code class="language-html">${escapeHtml(comp.code)}</code></pre>
+
+                    <div id="view-code-${item.id}" class="hidden h-56 bg-[#050505] relative group/code overflow-hidden">
+                        <button onclick="copyCode(\`${encodeURIComponent(item.code)}\`)" class="absolute top-3 right-3 z-10 p-1.5 bg-zinc-800 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-700 opacity-0 group-hover/code:opacity-100 transition"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                        <div class="h-full overflow-auto custom-scroll">
+                            <pre class="language-html h-full text-[11px]"><code class="language-html">${escapeHtml(item.code)}</code></pre>
+                        </div>
                     </div>
-                    <div class="px-6 py-3 bg-[#0B0B0E] flex justify-between items-center text-xs text-gray-500">
-                        <span>ID: ${comp.id.substring(0,8)}</span>
-                        <span class="uppercase font-bold tracking-wider text-orange-400">${comp.type}</span>
+
+                    <div class="px-5 py-2.5 bg-[#080808] border-t border-border flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
+                            <span class="text-[10px] text-zinc-600 font-mono">${item.id.substring(0,8)}</span>
+                        </div>
+                        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">${item.type}</span>
                     </div>
-                `;
-                grid.appendChild(el);
-            });
+                </div>
+            `).join('');
+
             Prism.highlightAll();
             lucide.createIcons();
         }
 
-        // 5. UPLOAD (Real Firestore)
+        // UPLOAD
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(!isConnected) return;
-
             const btn = e.target.querySelector('button');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...`;
-            lucide.createIcons();
-
+            const originalText = btn.innerText;
+            btn.innerText = "Deploying...";
+            
             try {
                 await db.collection("components").add({
                     title: document.getElementById('comp-title').value,
@@ -341,83 +357,64 @@
                     code: document.getElementById('comp-code').value,
                     created_at: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                showToast("Published Successfully");
+                showToast("Component Deployed Successfully");
                 closeModal();
                 e.target.reset();
-            } catch (error) {
-                console.error(error);
-                showToast("Error: " + error.message, true);
+            } catch(err) {
+                showToast("Deployment Failed", true);
+                console.error(err);
             } finally {
-                btn.innerHTML = originalHTML;
+                btn.innerText = originalText;
             }
         });
 
-        // 6. UTILS
-        function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-        
-        function switchView(id, mode) {
+        // VIEW TOGGLE
+        window.toggleView = function(id, mode) {
             const prev = document.getElementById(`view-prev-${id}`);
             const code = document.getElementById(`view-code-${id}`);
-            const btnP = document.getElementById(`btn-prev-${id}`);
-            const btnC = document.getElementById(`btn-code-${id}`);
             
-            if(mode === 'prev') {
+            if(mode === 'preview') {
                 prev.classList.remove('hidden'); code.classList.add('hidden');
-                btnP.classList.add('bg-[#1F1F23]', 'text-white'); btnP.classList.remove('text-gray-500');
-                btnC.classList.remove('bg-[#1F1F23]', 'text-white'); btnC.classList.add('text-gray-500');
             } else {
                 code.classList.remove('hidden'); prev.classList.add('hidden');
-                btnC.classList.add('bg-[#1F1F23]', 'text-white'); btnC.classList.remove('text-gray-500');
-                btnP.classList.remove('bg-[#1F1F23]', 'text-white'); btnP.classList.add('text-gray-500');
             }
         }
 
-        function copyCode(code) {
-            navigator.clipboard.writeText(decodeURIComponent(code));
-            showToast("Copied to Clipboard");
+        // UTILS
+        function updateStatus(connected) {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            const btn = document.getElementById('upload-btn');
+            
+            if(connected) {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse";
+                txt.innerText = "ONLINE"; txt.className = "text-[10px] text-green-500 font-mono font-bold tracking-wider";
+                btn.disabled = false;
+            } else {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-red-500";
+                txt.innerText = "OFFLINE";
+            }
         }
 
-        function showToast(msg, isError = false) {
+        function filterCategory(cat) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            event.target.closest('button').classList.add('active');
+            document.getElementById('current-cat-label').innerText = cat === 'all' ? 'Overview' : cat.charAt(0).toUpperCase() + cat.slice(1) + 's';
+            if(cat === 'all') renderGrid(allData); else renderGrid(allData.filter(i => i.type === cat));
+        }
+
+        function showToast(msg, err) {
             const t = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = msg;
-            const icon = t.querySelector('div');
-            if(isError) {
-                icon.className = "p-1 bg-red-500/20 rounded text-red-500";
-                icon.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i>`;
-            } else {
-                icon.className = "p-1 bg-green-500/20 rounded text-green-500";
-                icon.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
-            }
-            lucide.createIcons();
-            t.classList.remove('translate-y-32');
-            setTimeout(() => t.classList.add('translate-y-32'), 3000);
+            document.getElementById('toast-icon').className = err ? "w-2 h-2 rounded-full bg-red-500" : "w-2 h-2 rounded-full bg-green-500";
+            t.classList.remove('translate-y-24');
+            setTimeout(() => t.classList.add('translate-y-24'), 3000);
         }
 
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        // Filtering & Search
-        function filterCategory(cat) {
-            document.getElementById('current-category').innerText = cat === 'all' ? 'All Components' : cat.charAt(0).toUpperCase() + cat.slice(1) + 's';
-            if(cat === 'all') {
-                renderGrid(allComponents);
-            } else {
-                renderGrid(allComponents.filter(c => c.type === cat));
-            }
-        }
-
-        document.getElementById('global-search').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allComponents.filter(c => 
-                c.title.toLowerCase().includes(term) || 
-                c.code.toLowerCase().includes(term)
-            );
-            renderGrid(filtered);
-        });
+        function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
+        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); showToast("Copied to clipboard"); }
+        function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
     </script>
 </body>
 </html>
-
