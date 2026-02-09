@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NyxUI | Enterprise Registry</title>
+    <title>NyxUI | Titanium Registry</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -39,13 +39,12 @@
         .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 13px; color: #71717a; border-radius: 6px; transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
         .nav-item:hover { color: #fff; background: #111; border-color: #1A1A1A; }
         .nav-item.active { color: #fff; background: #111; border-color: #27272a; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-        
-        /* Badges */
-        .badge-owner { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: black; font-weight: 800; border: 1px solid #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
-        .badge-co { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; font-weight: 700; border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
-        
-        /* Protected Elements (Hidden by default) */
+        .badge-owner { background: #FFD700; color: black; font-weight: 800; border: 1px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+        .badge-co { background: #3b82f6; color: white; font-weight: 700; border: 1px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
         .protected { display: none !important; }
+        #console-log { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #00ff9d; }
+        .log-entry { margin-bottom: 2px; opacity: 0.7; border-left: 2px solid transparent; padding-left: 4px; }
+        .log-error { color: #ff4d4d; border-left-color: #ff4d4d; }
     </style>
 </head>
 <body class="h-screen flex text-sm selection:bg-blue-500/20 selection:text-blue-200">
@@ -60,12 +59,12 @@
             </div>
             <div>
                 <h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1>
-                <p id="user-badge" class="text-[10px] text-zinc-600 font-mono">PUBLIC VIEW</p>
+                <p id="role-badge" class="text-[10px] text-zinc-600 font-mono mt-0.5">TITANIUM CORE</p>
             </div>
         </div>
 
         <div class="p-4">
-            <input type="text" id="global-search" placeholder="Search..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 pl-9 pr-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition placeholder:text-zinc-700 font-mono">
+            <input type="text" id="global-search" placeholder="Search..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 pl-9 pr-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition font-mono">
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 space-y-6">
@@ -76,14 +75,24 @@
                 <div onclick="filterCategory('input')" class="nav-item"><i data-lucide="text-cursor-input" class="w-4 h-4"></i> Inputs</div>
                 <div onclick="filterCategory('card')" class="nav-item"><i data-lucide="layout-template" class="w-4 h-4"></i> Cards</div>
             </div>
+            
+            <div class="mt-auto border-t border-border pt-4 px-2">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">Sync Log</h4>
+                    <button onclick="document.getElementById('console-log').innerHTML=''" class="text-[9px] text-zinc-700 hover:text-white">CLEAR</button>
+                </div>
+                <div id="console-log" class="h-24 overflow-y-auto w-full break-words space-y-1 bg-black/40 p-2 rounded border border-white/5">
+                    <div class="log-entry">> Initializing...</div>
+                </div>
+            </div>
         </div>
 
         <div class="p-4 border-t border-border bg-black/20">
-            <button onclick="openModal('upload-modal')" id="upload-btn" class="protected w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+            <button onclick="openModal('upload-modal')" id="upload-btn" class="protected w-full bg-white text-black hover:bg-zinc-200 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 mb-2">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Component
             </button>
             <button onclick="openModal('auth-modal')" id="login-btn" class="w-full bg-[#111] text-zinc-500 hover:text-white border border-border py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
-                <i data-lucide="lock" class="w-3.5 h-3.5"></i> Admin Access
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i> Admin Login
             </button>
         </div>
     </aside>
@@ -91,9 +100,7 @@
     <main class="flex-1 flex flex-col min-w-0 relative">
         <header class="h-16 border-b border-border bg-black/50 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-8">
             <div class="flex items-center gap-2 text-zinc-500 text-xs"><i data-lucide="home" class="w-3.5 h-3.5"></i><span>/</span><span id="current-cat-label" class="text-white font-medium">Overview</span></div>
-            <div class="flex gap-4">
-                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span><span class="text-xs text-zinc-400">System Live</span></div>
-            </div>
+            <div class="flex gap-4"><div class="flex items-center gap-2"><span id="db-status-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span><span id="db-status-text" class="text-xs text-zinc-400">Connecting...</span></div></div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-8">
@@ -101,7 +108,7 @@
                 <div id="grid-container" class="grid grid-cols-1 gap-8 pb-20">
                     <div class="text-center py-24 space-y-4">
                         <div class="w-8 h-8 border border-zinc-800 rounded-full animate-spin border-t-white inline-block"></div>
-                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Loading Ecosystem...</p>
+                        <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Establishing Secure Link...</p>
                     </div>
                 </div>
             </div>
@@ -111,16 +118,10 @@
     <div id="auth-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="closeModal('auth-modal')"></div>
         <div class="bg-[#050505] w-full max-w-sm rounded-xl border border-border shadow-2xl relative z-10 p-8 text-center">
-            <div class="mb-6">
-                <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
-                    <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
-                </div>
-                <h2 class="text-lg font-bold text-white">Restricted Access</h2>
-                <p class="text-xs text-zinc-500 mt-1">Authorized Personnel Only</p>
-            </div>
+            <div class="mb-6"><div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10"><i data-lucide="shield-check" class="w-6 h-6 text-white"></i></div><h2 class="text-lg font-bold text-white">Admin Protocol</h2><p class="text-xs text-zinc-500 mt-1">Identity Verification Required</p></div>
             <form id="auth-form" class="space-y-4">
-                <input type="text" id="auth-name" placeholder="Auth Name" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none font-mono text-center">
-                <input type="password" id="auth-pass" placeholder="Access Key" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none font-mono text-center">
+                <input type="text" id="auth-name" placeholder="Auth ID" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-3 text-xs text-white focus:border-accent outline-none font-mono text-center">
+                <input type="password" id="auth-pass" placeholder="Access Key" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-3 text-xs text-white focus:border-accent outline-none font-mono text-center">
                 <button type="submit" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">Authenticate</button>
             </form>
         </div>
@@ -130,7 +131,7 @@
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeModal('upload-modal')"></div>
         <div class="bg-[#050505] w-full max-w-2xl rounded-xl border border-border shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
             <div class="h-14 border-b border-border flex items-center justify-between px-6 bg-[#0A0A0A]">
-                <span class="text-xs font-mono text-zinc-500">Deploy Component</span>
+                <div class="flex items-center gap-2"><span class="text-xs font-mono text-zinc-500">Deploy Component</span></div>
                 <button onclick="closeModal('upload-modal')" class="text-zinc-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <form id="upload-form" class="flex-1 overflow-y-auto p-6 space-y-6">
@@ -149,7 +150,9 @@
     </div>
 
     <script>
-        // CONFIG
+        // ==================================================
+        // ⚡ FIREBASE CONFIGURATION
+        // ==================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBCLw0As7hB-B_ZeovtZ8oOWedXomY82qI",
             authDomain: "novanexus-9ee9a.firebaseapp.com",
@@ -158,33 +161,82 @@
             messagingSenderId: "807572356674",
             appId: "1:807572356674:web:8abe644cd432cf19aef7db"
         };
-        const COLLECTION_NAME = "nyx-registry-v1";
 
-        // STATE
-        let db = null;
-        let allData = [];
-        let userRole = 'guest'; // guest, owner, co-owner
+        const COLLECTION_NAME = "nyx-titanium-v1"; // New Collection
+        const STORAGE_KEY = "nyx_titanium_cache";
 
-        // AUTH DATA (In Real App, this is on Server)
+        // AUTH DATA
         const CREDENTIALS = {
             'nyxowner6272773064@@</>()&': { pass: 'notnyxisadev', role: 'owner', badge: 'SYSTEM ARCHITECT' },
             'nyx_co_zephyr_X99$': { pass: 'vertex_access_granted', role: 'co-owner', badge: 'CORE MAINTAINER' }
         };
 
+        let db = null;
+        let allData = [];
+        let userRole = 'guest';
+
         // INIT
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+            systemLog("System Booting...");
+            
+            // 1. FAST LOAD (LocalStorage)
+            loadFromLocal();
+
+            // 2. CONNECT CLOUD
             try {
-                firebase.initializeApp(firebaseConfig);
+                if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
+                updateStatus(true);
+                systemLog("Firebase Connected.");
                 initRealtimeListener();
             } catch(e) {
                 console.error(e);
-                showToast("DB Connection Error", true);
+                updateStatus(false);
+                systemLog("ERR: Firebase Failed.", true);
             }
         });
 
-        // 1. AUTH LOGIC
+        // --- CORE LOGIC ---
+
+        function loadFromLocal() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved) {
+                try {
+                    allData = JSON.parse(saved);
+                    systemLog(`Loaded ${allData.length} items from Cache.`);
+                    renderGrid(allData);
+                } catch(e) {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            } else {
+                renderGrid([]);
+            }
+        }
+
+        function saveToLocal(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function initRealtimeListener() {
+            db.collection(COLLECTION_NAME).onSnapshot((snapshot) => {
+                const cloudData = [];
+                snapshot.forEach(doc => cloudData.push({ id: doc.id, ...doc.data() }));
+                
+                // Sort Newest First
+                cloudData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                
+                allData = cloudData;
+                saveToLocal(allData);
+                systemLog(`Synced ${cloudData.length} items from Cloud.`);
+                renderGrid(allData);
+            }, (error) => {
+                console.error(error);
+                systemLog("ERR: Sync Failed. Check Permissions.", true);
+            });
+        }
+
+        // --- AUTH ---
         document.getElementById('auth-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('auth-name').value;
@@ -192,62 +244,89 @@
             
             if (CREDENTIALS[name] && CREDENTIALS[name].pass === pass) {
                 userRole = CREDENTIALS[name].role;
-                updateUI(CREDENTIALS[name].badge);
+                applyRoleUI(CREDENTIALS[name].badge, userRole);
                 closeModal('auth-modal');
-                showToast("Access Granted: " + userRole.toUpperCase());
+                showToast("Welcome, " + userRole.toUpperCase());
                 e.target.reset();
             } else {
                 showToast("Access Denied", true);
             }
         });
 
-        function updateUI(badgeText) {
-            // Show Upload Button
-            document.getElementById('upload-btn').classList.remove('protected');
-            document.getElementById('upload-btn').classList.add('flex');
-            
-            // Hide Login Button
+        function applyRoleUI(badgeText, role) {
             document.getElementById('login-btn').style.display = 'none';
-
-            // Update Badge
-            const badgeEl = document.getElementById('user-badge');
-            badgeEl.innerText = badgeText;
+            const uploadBtn = document.getElementById('upload-btn');
+            uploadBtn.classList.remove('protected');
+            uploadBtn.classList.add('flex');
             
-            if(userRole === 'owner') {
-                badgeEl.className = "text-[9px] px-2 py-0.5 rounded badge-owner mt-1 inline-block";
+            const badgeEl = document.getElementById('role-badge');
+            badgeEl.innerText = badgeText;
+            badgeEl.className = role === 'owner' 
+                ? "text-[9px] px-2 py-0.5 rounded badge-owner mt-1 inline-block uppercase tracking-wider" 
+                : "text-[9px] px-2 py-0.5 rounded badge-co mt-1 inline-block uppercase tracking-wider";
+                
+            renderGrid(allData); // Re-render to show delete buttons
+        }
+
+        // --- UPLOAD (Universal Sync) ---
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Deploying...";
+            btn.disabled = true;
+
+            const newItem = {
+                title: document.getElementById('comp-title').value,
+                type: document.getElementById('comp-type').value,
+                code: document.getElementById('comp-code').value,
+                created_at: new Date().toISOString()
+            };
+
+            if(db) {
+                try {
+                    await db.collection(COLLECTION_NAME).add(newItem);
+                    showToast("Published to Registry");
+                    closeModal('upload-modal');
+                    e.target.reset();
+                } catch(err) {
+                    systemLog("ERR: Cloud Write Failed.", true);
+                    alert("Write Failed: " + err.message);
+                }
             } else {
-                badgeEl.className = "text-[9px] px-2 py-0.5 rounded badge-co mt-1 inline-block";
+                alert("Database Offline. Cannot publish.");
             }
 
-            // Re-render grid to show delete buttons
-            renderGrid(allData);
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+
+        // --- DELETE ---
+        async function deleteComponent(id) {
+            if(confirm("Delete this component permanently?")) {
+                try {
+                    await db.collection(COLLECTION_NAME).doc(id).delete();
+                    showToast("Component Deleted");
+                } catch(err) {
+                    showToast("Delete Failed", true);
+                }
+            }
         }
 
-        // 2. DATA LISTENER
-        function initRealtimeListener() {
-            db.collection(COLLECTION_NAME).onSnapshot((snapshot) => {
-                allData = [];
-                snapshot.forEach(doc => {
-                    allData.push({ id: doc.id, ...doc.data() });
-                });
-                allData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-                renderGrid(allData);
-            });
-        }
-
-        // 3. RENDER GRID (PROTECTED DELETE)
+        // --- RENDERER ---
         function renderGrid(data) {
             const container = document.getElementById('grid-container');
-            if(data.length === 0) {
-                container.innerHTML = `<div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20"><p class="text-zinc-500 text-sm">Registry is empty.</p></div>`;
+            if(!data || data.length === 0) {
+                container.innerHTML = `<div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20"><p class="text-zinc-500 text-sm">Registry is empty. Waiting for sync.</p></div>`;
                 return;
             }
 
             container.innerHTML = data.map(item => `
                 <div class="prodex-card group relative">
-                    <button onclick="deleteComponent('${item.id}')" class="${userRole === 'guest' ? 'protected' : ''} absolute top-3 right-3 z-20 p-1.5 bg-red-500/10 text-red-500 rounded opacity-0 group-hover:opacity-100 transition hover:bg-red-500 hover:text-white" title="Delete">
+                    ${userRole !== 'guest' ? `
+                    <button onclick="deleteComponent('${item.id}')" class="absolute top-3 right-3 z-20 p-1.5 bg-red-500/10 text-red-500 rounded opacity-0 group-hover:opacity-100 transition hover:bg-red-500 hover:text-white" title="Delete">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
+                    </button>` : ''}
 
                     <div class="h-12 px-5 flex items-center justify-between border-b border-border bg-[#050505]">
                         <div class="flex items-center gap-3"><span class="p-1 rounded bg-white/5 text-zinc-400"><i data-lucide="box" class="w-3.5 h-3.5"></i></span><span class="text-xs font-bold text-zinc-200">${item.title}</span></div>
@@ -262,7 +341,7 @@
                         <div class="h-full overflow-auto custom-scroll"><pre class="language-html h-full text-[11px]"><code class="language-html">${escapeHtml(item.code)}</code></pre></div>
                     </div>
                     <div class="px-5 py-2.5 bg-[#080808] border-t border-border flex justify-between items-center">
-                        <span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,6)}</span>
+                        <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span><span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,6)}</span></div>
                         <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">${item.type}</span>
                     </div>
                 </div>
@@ -270,51 +349,29 @@
             Prism.highlightAll(); lucide.createIcons();
         }
 
-        // 4. UPLOAD (Only works if UI unlocked)
-        document.getElementById('upload-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(userRole === 'guest') return;
-
-            const btn = document.getElementById('submit-btn');
-            btn.innerText = "Deploying...";
-            
-            try {
-                await db.collection(COLLECTION_NAME).add({
-                    title: document.getElementById('comp-title').value,
-                    type: document.getElementById('comp-type').value,
-                    code: document.getElementById('comp-code').value,
-                    created_at: new Date().toISOString()
-                });
-                showToast("Component Published");
-                closeModal('upload-modal');
-                e.target.reset();
-            } catch(err) {
-                console.error(err);
-                showToast("Error: " + err.message, true);
-            } finally {
-                btn.innerText = "Push to Registry";
-            }
-        });
-
-        // 5. DELETE
-        async function deleteComponent(id) {
-            if(userRole === 'guest') return;
-            if(confirm("Are you sure? This cannot be undone.")) {
-                try {
-                    await db.collection(COLLECTION_NAME).doc(id).delete();
-                    showToast("Deleted");
-                } catch(err) {
-                    showToast("Delete Failed", true);
-                }
-            }
+        // Utils
+        function systemLog(msg, isErr = false) {
+            const el = document.getElementById('console-log');
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+            el.innerHTML += `<div class="log-entry ${isErr ? 'log-error' : ''}">[${time}] ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
         }
-
-        // UTILS
         function toggleView(id, mode) {
             const prev = document.getElementById(`view-prev-${id}`);
             const code = document.getElementById(`view-code-${id}`);
             if(mode === 'preview') { prev.classList.remove('hidden'); code.classList.add('hidden'); }
             else { code.classList.remove('hidden'); prev.classList.add('hidden'); }
+        }
+        function updateStatus(connected) {
+            const dot = document.getElementById('db-status-dot');
+            const txt = document.getElementById('db-status-text');
+            if(connected) {
+                dot.className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse";
+                txt.innerText = "ONLINE"; txt.className = "text-xs text-green-500 font-mono font-bold tracking-wider";
+            } else {
+                dot.className = "w-2 h-2 rounded-full bg-red-500";
+                txt.innerText = "OFFLINE";
+            }
         }
         function filterCategory(cat) {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -333,8 +390,7 @@
         function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
         document.getElementById('global-search').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            const filtered = allData.filter(i => i.title.toLowerCase().includes(term));
-            renderGrid(filtered);
+            renderGrid(allData.filter(i => i.title.toLowerCase().includes(term)));
         });
     </script>
 </body>
