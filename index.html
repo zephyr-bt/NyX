@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NyxUI | Persistent Registry</title>
+    <title>NyxUI | Registry</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -40,7 +40,6 @@
         .nav-item:hover { color: #fff; background: #111; border-color: #1A1A1A; }
         .nav-item.active { color: #fff; background: #111; border-color: #27272a; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
         
-        /* Console Log */
         #console-log { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #00ff9d; }
         .log-entry { margin-bottom: 2px; opacity: 0.7; border-left: 2px solid transparent; padding-left: 4px; }
         .log-entry:last-child { opacity: 1; font-weight: bold; border-left-color: #00ff9d; }
@@ -57,11 +56,11 @@
             <div class="w-8 h-8 bg-gradient-to-br from-white to-zinc-400 rounded-lg flex items-center justify-center shadow-lg shadow-white/5">
                 <div class="w-4 h-4 bg-black rounded-md"></div>
             </div>
-            <div><h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1><p class="text-[10px] text-zinc-600 font-mono">PERSISTENT</p></div>
+            <div><h1 class="font-bold tracking-tight text-white">Nyx<span class="text-zinc-500">Registry</span></h1><p class="text-[10px] text-zinc-600 font-mono">HYBRID CORE</p></div>
         </div>
 
         <div class="p-4">
-            <input type="text" id="global-search" placeholder="Search components..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 px-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition font-mono">
+            <input type="text" id="global-search" placeholder="Search..." class="w-full bg-[#0A0A0A] border border-border rounded-lg py-2 px-3 text-xs text-zinc-300 focus:border-zinc-500 outline-none transition font-mono">
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 space-y-6">
@@ -76,7 +75,7 @@
             <div class="mt-auto border-t border-border pt-4 px-2">
                 <div class="flex justify-between items-center mb-2">
                     <h4 class="text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">System Log</h4>
-                    <button onclick="clearLog()" class="text-[9px] text-zinc-700 hover:text-white">CLEAR</button>
+                    <button onclick="document.getElementById('console-log').innerHTML=''" class="text-[9px] text-zinc-700 hover:text-white">CLEAR</button>
                 </div>
                 <div id="console-log" class="h-32 overflow-y-auto w-full break-words space-y-1 bg-black/40 p-2 rounded">
                     <div class="log-entry">> Initializing...</div>
@@ -121,7 +120,7 @@
                     <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Name</label><input type="text" id="comp-title" required class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-white focus:border-accent outline-none font-mono" placeholder="MyComponent"></div>
                     <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Type</label><select id="comp-type" class="w-full bg-[#0A0A0A] border border-border rounded-lg px-4 py-2.5 text-sm text-zinc-400 focus:border-accent outline-none font-mono"><option value="button">Button</option><option value="input">Input</option><option value="card">Card</option><option value="loader">Loader</option></select></div>
                 </div>
-                <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Code</label><textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none resize-none leading-relaxed" spellcheck="false" placeholder="<button class='...'>...</button>"></textarea></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Code</label><textarea id="comp-code" required rows="10" class="w-full bg-[#0A0A0A] border border-border rounded-lg p-4 text-xs font-mono text-zinc-300 focus:border-accent outline-none resize-none leading-relaxed" spellcheck="false" placeholder="<button>Click me</button>"></textarea></div>
                 <button type="submit" id="submit-btn" class="w-full bg-white text-black font-bold text-xs uppercase tracking-widest py-3 rounded-lg hover:bg-zinc-200 transition">Push to Registry</button>
             </form>
         </div>
@@ -129,7 +128,7 @@
 
     <script>
         // ==================================================
-        // ⚠️ 1. PASTE YOUR CONFIG HERE
+        // ⚡ FIREBASE CONFIGURATION
         // ==================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBCLw0As7hB-B_ZeovtZ8oOWedXomY82qI",
@@ -150,10 +149,10 @@
             lucide.createIcons();
             systemLog("System Booting...");
             
-            // 1. Load LocalStorage Backup First (Immediate Display)
+            // 1. Load LocalStorage (Instant)
             loadFromLocal();
 
-            // 2. Try Firebase Connection
+            // 2. Connect Firebase
             try {
                 if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
@@ -181,44 +180,59 @@
                     systemLog("Cache Corrupt. Cleared.", true);
                     localStorage.removeItem('nyx_components');
                 }
-            } else {
-                systemLog("No Local Cache Found.");
-                renderGrid([]);
             }
         }
 
         function saveToLocal(data) {
             localStorage.setItem('nyx_components', JSON.stringify(data));
-            systemLog("Backup Saved to Browser.");
+            systemLog("Backup Saved.");
         }
 
-        // Listener (No Index Required)
+        // Listener
         function initRealtimeListener() {
             db.collection("components").onSnapshot((snapshot) => {
                 const cloudData = [];
                 snapshot.forEach(doc => cloudData.push({ id: doc.id, ...doc.data() }));
                 
-                // Sort by Time (Client Side)
-                cloudData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-                
-                allData = cloudData; // Update global state
-                saveToLocal(allData); // Update backup
-                systemLog(`Synced ${cloudData.length} items from Cloud.`);
-                renderGrid(allData);
+                // If empty, suggest seeding
+                if (cloudData.length === 0) {
+                    systemLog("Cloud is empty.", true);
+                    renderEmptyState(true); // Show Seed Button
+                } else {
+                    cloudData.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                    allData = cloudData;
+                    saveToLocal(allData); 
+                    systemLog(`Synced ${cloudData.length} items from Cloud.`);
+                    renderGrid(allData);
+                }
             }, (error) => {
                 console.error(error);
                 systemLog("ERR: Read Failed. Check Rules.", true);
-                if (error.code === 'permission-denied') {
-                    systemLog("TIP: Set Firestore rules to public.", true);
-                }
+                renderEmptyState(false); // Show normal empty
             });
         }
 
-        // --- UPLOAD HANDLER (The Fix) ---
+        // --- FORCE INITIALIZE (The Fix) ---
+        async function forceInitialize() {
+            systemLog("Attempting Force Init...");
+            try {
+                await db.collection("components").add({
+                    title: "Hello World",
+                    type: "button",
+                    code: `<button class="px-4 py-2 bg-blue-600 text-white rounded">Hello</button>`,
+                    created_at: new Date().toISOString()
+                });
+                systemLog("Init Success! Database Awakened.");
+            } catch (err) {
+                systemLog("Init Failed: " + err.message, true);
+                alert("Write Failed: " + err.message + "\n\nCheck your Firebase Rules in Console!");
+            }
+        }
+
+        // --- UPLOAD HANDLER ---
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
-            const originalText = btn.innerText;
             btn.innerText = "Deploying...";
             btn.disabled = true;
 
@@ -226,41 +240,28 @@
                 title: document.getElementById('comp-title').value,
                 type: document.getElementById('comp-type').value,
                 code: document.getElementById('comp-code').value,
-                created_at: new Date().toISOString(), // SAFE TIMESTAMP
-                id: 'temp-' + Date.now() // Temp ID for immediate display
+                created_at: new Date().toISOString()
             };
 
-            // 1. Optimistic Update (Show immediately)
-            allData.unshift(newItem);
-            renderGrid(allData);
+            // Local Save First
+            allData.unshift({ ...newItem, id: 'temp-'+Date.now() });
             saveToLocal(allData);
+            renderGrid(allData);
             closeModal();
-            systemLog("Optimistic Save OK.");
 
-            // 2. Cloud Save (Background)
+            // Cloud Save
             if(isOnline && db) {
                 try {
-                    // Force Timeout if DB is slow
-                    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
-                    const upload = db.collection("components").add({
-                        title: newItem.title,
-                        type: newItem.type,
-                        code: newItem.code,
-                        created_at: newItem.created_at
-                    });
-
-                    await Promise.race([upload, timeout]);
+                    await db.collection("components").add(newItem);
                     systemLog("Cloud Sync Confirmed.");
                 } catch(err) {
-                    systemLog("ERR: Cloud Save Failed (Saved Locally)", true);
-                    console.error(err);
+                    systemLog("ERR: Cloud Write Failed.", true);
+                    alert("Cloud Save Error: " + err.message);
                 }
-            } else {
-                systemLog("Offline Mode: Saved Locally only.");
             }
 
             e.target.reset();
-            btn.innerText = originalText;
+            btn.innerText = "Push to Registry";
             btn.disabled = false;
         });
 
@@ -268,7 +269,7 @@
         function renderGrid(data) {
             const container = document.getElementById('grid-container');
             if(!data || data.length === 0) {
-                container.innerHTML = `<div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20"><p class="text-zinc-500 text-sm">Registry is empty.</p></div>`;
+                renderEmptyState(false);
                 return;
             }
 
@@ -287,12 +288,25 @@
                         <div class="h-full overflow-auto custom-scroll"><pre class="language-html h-full text-[11px]"><code class="language-html">${escapeHtml(item.code)}</code></pre></div>
                     </div>
                     <div class="px-5 py-2.5 bg-[#080808] border-t border-border flex justify-between items-center">
-                        <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span><span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,8)}</span></div>
+                        <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-500/50"></span><span class="text-[10px] text-zinc-600 font-mono">ID: ${item.id.substring(0,6)}</span></div>
                         <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">${item.type}</span>
                     </div>
                 </div>
             `).join('');
             Prism.highlightAll(); lucide.createIcons();
+        }
+
+        function renderEmptyState(canSeed) {
+            const container = document.getElementById('grid-container');
+            if(canSeed) {
+                container.innerHTML = `
+                    <div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20">
+                        <p class="text-zinc-500 text-sm mb-4">Database Connection Successful (0 Items).</p>
+                        <button onclick="forceInitialize()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-xs font-bold transition">Initialize Database</button>
+                    </div>`;
+            } else {
+                container.innerHTML = `<div class="py-24 text-center border border-dashed border-border rounded-xl bg-black/20"><p class="text-zinc-500 text-sm">Registry is empty.</p></div>`;
+            }
         }
 
         // --- UTILS ---
@@ -302,7 +316,6 @@
             el.innerHTML += `<div class="log-entry ${isErr ? 'log-error' : ''}">[${time}] ${msg}</div>`;
             el.scrollTop = el.scrollHeight;
         }
-        function clearLog() { document.getElementById('console-log').innerHTML = ''; }
 
         function toggleView(id, mode) {
             const prev = document.getElementById(`view-prev-${id}`);
@@ -311,32 +324,30 @@
             else { code.classList.remove('hidden'); prev.classList.add('hidden'); }
         }
 
-        function updateStatus(connected) {
+        function updateStatus(online) {
             const dot = document.getElementById('db-status-dot');
             const txt = document.getElementById('db-status-text');
-            const btn = document.getElementById('upload-btn');
-            
-            if(connected) {
-                dot.className = "w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse";
-                txt.innerText = "ONLINE"; txt.className = "text-[10px] text-green-500 font-mono font-bold tracking-wider";
-                btn.disabled = false;
-            } else {
-                dot.className = "w-1.5 h-1.5 rounded-full bg-red-500";
-                txt.innerText = "OFFLINE";
-            }
+            if(online) { dot.className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] animate-pulse"; txt.innerText = "ONLINE"; txt.className = "text-xs text-green-500 font-mono font-bold"; }
+            else { dot.className = "w-2 h-2 rounded-full bg-red-500"; txt.innerText = "OFFLINE"; }
         }
 
         function filterCategory(cat) {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            event.target.closest('div').classList.add('active'); // Fixed selector
+            event.target.classList.add('active');
             document.getElementById('current-cat-label').innerText = cat === 'all' ? 'Overview' : cat.charAt(0).toUpperCase() + cat.slice(1) + 's';
             if(cat === 'all') renderGrid(allData); else renderGrid(allData.filter(i => i.type === cat));
         }
 
         function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
-        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); systemLog("Code copied to clipboard."); }
+        function copyCode(c) { navigator.clipboard.writeText(decodeURIComponent(c)); systemLog("Code copied."); }
         function escapeHtml(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+        
+        document.getElementById('global-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allData.filter(i => i.title.toLowerCase().includes(term));
+            renderGrid(filtered);
+        });
     </script>
 </body>
 </html>
